@@ -1,67 +1,225 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.2;
+contract owned {
+    address public owner;
 
-contract Bank {
-	// 此合約的擁有者
-	address private owner;
+    function owned() {
+        owner = msg.sender;
+    }
 
-	// 儲存所有會員的餘額
-	mapping (address => uint256) private balances;
+    modifier onlyOwner {
+        if (msg.sender != owner) throw;
+        _;
+    }
 
-	// 事件們，用於通知前端 web3.js
-	event DepositEvent(address indexed from, uint256 value, uint256 timestamp);
-	event WithdrawEvent(address indexed from, uint256 value, uint256 timestamp);
-	event TransferEvent(address indexed from, address indexed to, uint256 value, uint256 timestamp);
+    function transferOwnership(address newOwner) onlyOwner {
+        owner = newOwner;
+    }
+}
 
-	// 建構子
-	function Bank() {
-		owner = msg.sender;
-	}
+contract tokenRecipient { 
+    event receivedEther(address sender, uint amount);
+    event receivedTokens(address _from, uint256 _value, address _token, bytes _extraData);
 
-	// 存錢進去
-	function deposit() payable {
-		balances[msg.sender] += msg.value;
+    function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData){
+        Token t = Token(_token);
+        if (!t.transferFrom(_from, this, _value)) throw;
+        receivedTokens(_from, _value, _token, _extraData);
+    }
 
-		DepositEvent(msg.sender, msg.value, now);
-	}
+    function () payable {
+        receivedEther(msg.sender, msg.value);
+    }
+}
 
-	// 提錢出來
-	function withdraw(uint256 etherValue) {
-		uint256 weiValue = etherValue * 1 ether;
+contract Token {
+    function transferFrom(address _from, address _to, uint256 _value) returns (bool success);
+}
 
-		if (balances[msg.sender] < weiValue) {
-			throw;
-		}
+contract Congress is owned, tokenRecipient {
 
-		if (!msg.sender.send(weiValue)) {
-			throw;
-		}
+    /* Contract Variables and events */
+    uint public minimumQuorum;
+    uint public debatingPeriodInMinutes;
+    int public majorityMargin;
+    Proposal[] public proposals;
+    uint public numProposals;
+    mapping (address => uint) public memberId;
+    Member[] public members;
 
-		balances[msg.sender] -= weiValue;
+    event ProposalAdded(uint proposalID, address recipient, uint amount, string description);
+    event Voted(uint proposalID, bool position, address voter, string justification);
+    event ProposalTallied(uint proposalID, int result, uint quorum, bool active);
+    event MembershipChanged(address member, bool isMember);
+    event ChangeOfRules(uint minimumQuorum, uint debatingPeriodInMinutes, int majorityMargin);
 
-		WithdrawEvent(msg.sender, etherValue, now);
-	}
+    struct Proposal {
+        address recipient;
+        uint amount;
+        string description;
+        uint votingDeadline;
+        bool executed;
+        bool proposalPassed;
+        uint numberOfVotes;
+        int currentResult;
+        bytes32 proposalHash;
+        Vote[] votes;
+        mapping (address => bool) voted;
+    }
 
-	// 轉帳
-	function transfer(address to, uint256 etherValue) {
-		uint256 weiValue = etherValue * 1 ether;
+    struct Member {
+        address member;
+        bool canVote;
+        string name;
+        uint memberSince;
+    }
 
-		if (balances[msg.sender] < weiValue) {
-			throw;
-		}
+    struct Vote {
+        bool inSupport;
+        address voter;
+        string justification;
+    }
 
-		balances[msg.sender] -= weiValue;
-		balances[to] += weiValue;
+    /* modifier that allows only shareholders to vote and create new proposals */
+    modifier onlyMembers {
+        if (memberId[msg.sender] == 0
+        || !members[memberId[msg.sender]].canVote)
+        throw;
+        _;
+    }
 
-		TransferEvent(msg.sender, to, etherValue, now);
-	}
+    /* First time setup */
+    function Congress(
+        uint minimumQuorumForProposals,
+        uint minutesForDebate,
+        int marginOfVotesForMajority, address congressLeader
+    ) payable {
+        changeVotingRules(minimumQuorumForProposals, minutesForDebate, marginOfVotesForMajority);
+        if (congressLeader != 0) owner = congressLeader;
+        // It’s necessary to add an empty first member
+        changeMembership(0, false, ''); 
+        // and let's add the founder, to save a step later       
+        changeMembership(owner, true, 'founder');        
+    }
 
-	// 檢查銀行帳戶餘額
-	function checkBankBalance() constant returns (uint256) {
-		return balances[msg.sender];
-	}
+    /*make member*/
+    function changeMembership(address targetMember, bool canVote, string memberName) onlyOwner {
+        uint id;
+        if (memberId[targetMember] == 0) {
+           memberId[targetMember] = members.length;
+           id = members.length++;
+           members[id] = Member({member: targetMember, canVote: canVote, memberSince: now, name: memberName});
+        } else {
+            id = memberId[targetMember];
+            Member m = members[id];
+            m.canVote = canVote;
+        }
 
-	// 檢查以太帳戶餘額
-	function checkEtherBalance() constant returns (uint256) {
-		return msg.sender.balance;
-	}
+        MembershipChanged(targetMember, canVote);
+
+    }
+
+    /*change rules*/
+    function changeVotingRules(
+        uint minimumQuorumForProposals,
+        uint minutesForDebate,
+        int marginOfVotesForMajority
+    ) onlyOwner {
+        minimumQuorum = minimumQuorumForProposals;
+        debatingPeriodInMinutes = minutesForDebate;
+        majorityMargin = marginOfVotesForMajority;
+
+        ChangeOfRules(minimumQuorum, debatingPeriodInMinutes, majorityMargin);
+    }
+
+    /* Function to create a new proposal */
+    function newProposal(
+        address beneficiary,
+        uint etherAmount,
+        string JobDescription,
+        bytes transactionBytecode
+    )
+        onlyMembers
+        returns (uint proposalID)
+    {
+        proposalID = proposals.length++;
+        Proposal p = proposals[proposalID];
+        p.recipient = beneficiary;
+        p.amount = etherAmount;
+        p.description = JobDescription;
+        p.proposalHash = sha3(beneficiary, etherAmount, transactionBytecode);
+        p.votingDeadline = now + debatingPeriodInMinutes * 1 minutes;
+        p.executed = false;
+        p.proposalPassed = false;
+        p.numberOfVotes = 0;
+        ProposalAdded(proposalID, beneficiary, etherAmount, JobDescription);
+        numProposals = proposalID+1;
+    }
+
+    /* function to check if a proposal code matches */
+    function checkProposalCode(
+        uint proposalNumber,
+        address beneficiary,
+        uint etherAmount,
+        bytes transactionBytecode
+    )
+        constant
+        returns (bool codeChecksOut)
+    {
+        Proposal p = proposals[proposalNumber];
+        return p.proposalHash == sha3(beneficiary, etherAmount, transactionBytecode);
+    }
+
+    function vote(
+        uint proposalNumber,
+        bool supportsProposal,
+        string justificationText
+    )
+        onlyMembers
+        returns (uint voteID)
+    {
+        Proposal p = proposals[proposalNumber];         // Get the proposal
+        if (p.voted[msg.sender] == true) throw;         // If has already voted, cancel
+        p.voted[msg.sender] = true;                     // Set this voter as having voted
+        p.numberOfVotes++;                              // Increase the number of votes
+        if (supportsProposal) {                         // If they support the proposal
+            p.currentResult++;                          // Increase score
+        } else {                                        // If they don't
+            p.currentResult--;                          // Decrease the score
+        }
+        // Create a log of this event
+        Voted(proposalNumber,  supportsProposal, msg.sender, justificationText);
+    }
+
+    function executeProposal(uint proposalNumber, bytes transactionBytecode) returns (int result) {
+        Proposal p = proposals[proposalNumber];
+        /* Check if the proposal can be executed:
+           - Has the voting deadline arrived?
+           - Has it been already executed or is it being executed?
+           - Does the transaction code match the proposal?
+           - Has a minimum quorum?
+        */
+
+        if (now < p.votingDeadline
+            || p.executed
+            || p.proposalHash != sha3(p.recipient, p.amount, transactionBytecode)
+            || p.numberOfVotes < minimumQuorum)
+            throw;
+
+        /* execute result */
+        /* If difference between support and opposition is larger than margin */
+        if (p.currentResult > majorityMargin) {
+            // Avoid recursive calling
+
+            p.executed = true;
+            if (!p.recipient.call.value(p.amount * 1 ether)(transactionBytecode)) {
+                throw;
+            }
+
+            p.proposalPassed = true;
+        } else {
+            p.proposalPassed = false;
+        }
+        // Fire Events
+        ProposalTallied(proposalNumber, p.currentResult, p.numberOfVotes, p.proposalPassed);
+    }
 }
