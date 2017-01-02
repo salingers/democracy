@@ -2,86 +2,61 @@
 <html>
 
 <head>
-	<meta charset="UTF-8">
-	<title>Bank</title>
+<meta charset="UTF-8">
+<title>Bank</title>
 </head>
 
 <body>
 
-	<h5>帳戶登入</h5>
-	<select id="whoami"></select>
-	<button id="whoamiButton">登入</button>
+<!--
+<h5>帳戶</h5>
+<div id="accounts"></div>
+<hr>
+-->
 
-	
-	<h5 id="accountStatus">帳戶狀態</h5>
-	<h5 id="ethBalance">以太帳戶餘額 (wei): </h5>
-	<h5 id="bankBalance">銀行合約餘額 (wei): </h5>
-	<hr>
-	
+<h5>投票狀態</h5>
+<input type="radio" name="flag" value="true" checked>開放<br>
+<input type="radio" name="flag" value="false">關閉<br>
+<button id="changeVotingState" >確定</button>
+<div id="changeVotingState-message"></div>
+<hr>
 
-	
-	<!---------------------------------------------------------------->
+<h5>選擇帳戶</h5>
+<select id="whoami">
+</select>
+<hr>
 
-	<!--deadline-->
-	<!--candidates-->
-	<!--memberId-->
-	<!--numCandidates-->
-	<!--members-->
-	
-	
-	<h5>能否投票</h5>
-	<input id="flag" type="text" placeholder="能否投票" value="true">
-	<button id="changeVotingState" >執行</button>
-	<hr>
-	
-	<h5>回傳現在地址</h5>
-	<input id="description" type="text" placeholder="候選人" disabled>
-	<button id="getAddr">執行</button>
-	<hr>
-	
-	
-	<h5>增加候選人</h5>
-	<select id="candAddr"></select>
-	<input id="description" type="text" placeholder="候選人">
-	<button id="addCandidate">執行</button>
-	<hr>
-	
-	<h5>增加投票人</h5>
-	<select id="targetMember"></select>
-	<input id="memberName" type="text" placeholder="投票人">
-	<input id="canVote" type="text" placeholder="能否投票">
-	<button id="changeMembership">執行</button>
-	<hr>
+<h5>增加候選人</h5>
+<select id="candAddr"></select>
+<input id="description" type="text" placeholder="候選人代號">
+<button id="addCandidate">確定</button>
+<div id="addCandidate-message"></div>
+<hr>
 
+<h5>增加投票人</h5>
+<select id="targetMember"></select>
+<input id="memberName" type="text" placeholder="投票人">
+<input id="canVote" type="text" placeholder="能否投票">
+<button id="changeMembership">確定</button>
+<hr>
 
-	
-	
+<h5>投票</h5>
+<input id="memAddr" type="text" placeholder="候選人">
+<input id="timestamp" type="text" placeholder="時間戳記">
+<button id="vote">確定</button>
+<hr>
 
-	<h5>投票</h5>
-	<input id="memAddr" type="text" placeholder="候選人">
-	<input id="timestamp" type="text" placeholder="候選人">
-	<button id="vote">執行</button>
-	<hr>
-	
-	
-	<h5>候選人檢查</h5>
-	<select id="candidateNumber"></select>
-	<button id="checkCandidate">執行</button>
-	<hr>
-	<!---------------------------------------------------------------->
+<h5>候選人檢查</h5>
+<select id="candidateNumber"></select>
+<button id="checkCandidate">確定</button>
+<hr>
 
-	<h5>活動紀錄</h5>
-	<pre id="logger"></pre>
-	
-	
-	
-	
-	
-	
-	
-	<script src="./js/jquery.min.js"></script>
-	<script src='http://140.119.164.162:8080/bower_components/web3/dist/web3.min.js'></script>
-	<script src="./js/index.js"></script>
+<h5>活動紀錄</h5>
+<pre id="logger"></pre>
+
+<script src="./js/jquery.min.js"></script>
+<script src="./js/index.js"></script>
+
 </body>
-
 </html>
+														

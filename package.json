@@ -1,5 +1,5 @@
 {
-  "name": "nccucs-se2016-dapp-example",
+  "name": "election",
   "version": "1.0.0",
   "description": "",
   "main": "",
@@ -10,13 +10,13 @@
   },
   "devDependencies": {},
   "scripts": {
-    "bank": "node web-nodejs-enode/bank-backend.js"
+    "election": "node web-nodejs-enode/election-backend.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/noeleon930/nccucs-se2016-dapp-example.git"
   },
-  "author": "NoelBao",
+  "author": "",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/noeleon930/nccucs-se2016-dapp-example/issues"
