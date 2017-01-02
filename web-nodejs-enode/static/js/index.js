@@ -166,7 +166,7 @@ $(function () {
 			$('#candidateNumber').append('<option value="' + object.candAddr + '">'
 				 + $('#description').val() + '. ' + object.candAddr
 				 + '</option>');
-			$("#candAddr option[value='" + $('#candAddr').val() + "']").remove();
+			$("#candAddr option[value='" + $('#candAddr').val() + "']:selected").remove();
 			$('#description').val('');
 			
 
