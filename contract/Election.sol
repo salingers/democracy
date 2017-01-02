@@ -73,7 +73,7 @@ contract Election {
         return msg.sender;
     }
     /*新增/修改member的投票權限,targetMember 要新增/修改member的投票人位址,memberName 投票人名字, canVote true有投票權,false則無投票權*/
-    function changeMembership(address targetMember, string memberName, bool canVote)  {
+    function changeMembership(address targetMember, string memberName, bool canVote) onlyOwner {
         
         uint id;
         //如果member不存在，則新增
@@ -95,7 +95,7 @@ contract Election {
     /*修改投選舉的狀態,flag true可投票 false則無法再投票*/
     function changeVotingState(
         bool flag
-    )  {
+    ) onlyOwner {
         open = flag;
         //預設投票截止時間為開始後100秒
         deadline = now + 600;
@@ -106,7 +106,7 @@ contract Election {
         address candAddr,
         string description
     )
-        
+        onlyOwner
         returns (uint candID)
     {
         bool exist = false;
