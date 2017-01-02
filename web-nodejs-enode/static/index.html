@@ -7,30 +7,80 @@
 </head>
 
 <body>
-	<h3>帳戶登入</h3>
-	<input id="whoami" type="text" placeholder="請輸入您的位址">
+
+	<h5>帳戶登入</h5>
+	<select id="whoami"></select>
 	<button id="whoamiButton">登入</button>
-	<hr>
-	<h3>帳戶狀態</h3>
+
+	
+	<h5 id="accountStatus">帳戶狀態</h5>
 	<h5 id="ethBalance">以太帳戶餘額 (wei): </h5>
 	<h5 id="bankBalance">銀行合約餘額 (wei): </h5>
 	<hr>
-	<h3>存款</h3>
-	<input id="deposit" type="number" placeholder="請輸入存款額度 (ether)">
-	<button id="depositButton">執行</button>
+	
+
+	
+	<!---------------------------------------------------------------->
+
+	<!--deadline-->
+	<!--candidates-->
+	<!--memberId-->
+	<!--numCandidates-->
+	<!--members-->
+	
+	
+	<h5>能否投票</h5>
+	<input id="flag" type="text" placeholder="能否投票" value="true">
+	<button id="changeVotingState" >執行</button>
 	<hr>
-	<h3>提款</h3>
-	<input id="withdraw" type="number" placeholder="請輸入提款額度 (ether)">
-	<button id="withdrawButton">執行</button>
+	
+	<h5>回傳現在地址</h5>
+	<input id="description" type="text" placeholder="候選人" disabled>
+	<button id="getAddr">執行</button>
 	<hr>
-	<h3>轉帳</h3>
-	<input id="transferTo" type="text" placeholder="請輸入轉帳對象">
-	<input id="transferEtherValue" type="number" placeholder="請輸入轉帳額度 (ether)">
-	<button id="transferButton">執行</button>
+	
+	
+	<h5>增加候選人</h5>
+	<select id="candAddr"></select>
+	<input id="description" type="text" placeholder="候選人">
+	<button id="addCandidate">執行</button>
 	<hr>
-	<h3>活動紀錄</h3>
+	
+	<h5>增加投票人</h5>
+	<select id="targetMember"></select>
+	<input id="memberName" type="text" placeholder="投票人">
+	<input id="canVote" type="text" placeholder="能否投票">
+	<button id="changeMembership">執行</button>
+	<hr>
+
+
+	
+	
+
+	<h5>投票</h5>
+	<input id="memAddr" type="text" placeholder="候選人">
+	<input id="timestamp" type="text" placeholder="候選人">
+	<button id="vote">執行</button>
+	<hr>
+	
+	
+	<h5>候選人檢查</h5>
+	<select id="candidateNumber"></select>
+	<button id="checkCandidate">執行</button>
+	<hr>
+	<!---------------------------------------------------------------->
+
+	<h5>活動紀錄</h5>
 	<pre id="logger"></pre>
+	
+	
+	
+	
+	
+	
+	
 	<script src="./js/jquery.min.js"></script>
+	<script src='http://140.119.164.162:8080/bower_components/web3/dist/web3.min.js'></script>
 	<script src="./js/index.js"></script>
 </body>
 
