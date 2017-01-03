@@ -98,7 +98,14 @@ contract Election {
     ) onlyOwner {
         open = flag;
         //預設投票截止時間為開始後100秒
-        deadline = now + 600;
+        if(open)
+        {
+            deadline = now + 600;
+        }
+        else
+        {
+            deadline = now;
+        }
     }
 
     /* 只有佈署者可增加候選人,candAddr候選人位址,description候選人名字 */
@@ -136,21 +143,23 @@ contract Election {
         uint candidateNumber,
         string comment
     )
-        onlyMembers
+        //onlyMembers
         returns (uint voteID)
     {
         //判斷選舉是否已截止或被關閉了
+        
         if(now>deadline || !open){
             open = false;
             throw;
         }
-        Candidate c = candidates[candidateNumber];         // Get the proposal
-        if (c.voted[msg.sender] == true) throw;         // If has already voted, cancel
-        c.voted[msg.sender] = true;                     // Set this voter as having voted
-        c.numberOfVotes++;                              // Increase the number of votes
-        c.currentResult++;                          // Increase score
-        Voted(msg.sender,now);
        
+        Candidate c = candidates[candidateNumber]; 
+        if (c.voted[msg.sender] == true) throw;    
+        c.voted[msg.sender] = true;                
+        c.numberOfVotes++;                         
+        c.currentResult++;           
+		
+        Voted(msg.sender,now);
     }
 
     //檢查候選人得票數及是否當選，candidateNumber為候選人順序
@@ -159,7 +168,9 @@ contract Election {
         bool bResult = false;
         //判斷投票是否已截止
         if (now < deadline)
-            throw;
+        {
+            //throw;
+        }
         //檢查候選人得票數是否超過總票數的(1/2)+1
         uint votes = members.length/2+1;
         if(uint(c.currentResult)>=votes)

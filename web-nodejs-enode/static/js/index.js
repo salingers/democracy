@@ -72,10 +72,14 @@ $(function () {
 	GET('./accounts',
 		function (res) {
 		for (var k in res) {
-			//$('#accounts').append('' + k + ':' + res[k] + '<br/>');
 
-			whoami.append('<option value="' + res[k] + '">' + k + '. ' + res[k] + '</option>');
-			$('#candAddr').append('<option value="' + res[k] + '">' + k + '. ' + res[k] + '</option>');
+			if (k == 0) {
+				whoami.append('<option value="' + res[k] + '">' + k + '. ' + res[k] + '</option>');
+			} else {
+
+				$('#candAddr').append('<option value="' + res[k] + '">' + k + '. ' + res[k] + '</option>');
+				$('#targetMember').append('<option value="' + res[k] + '">' + k + '. ' + res[k] + '</option>');
+			}
 
 		}
 	}, function (res) {
@@ -141,11 +145,6 @@ $(function () {
 
 	$('#addCandidate').on('click', function () {
 
-		console.log('./addCandidate?'
-			 + 'f=' + whoami.val()
-			 + '&candAddr=' + $('#candAddr').val()
-			 + '&description=' + $('#description').val());
-			 
 		POST('./addCandidate?'
 			 + 'f=' + whoami.val()
 			 + '&candAddr=' + $('#candAddr').val()
@@ -156,19 +155,23 @@ $(function () {
 			if (typeof res === 'object') {
 				json = JSON.stringify(res, null, 2);
 			}
+
 			object = jQuery.parseJSON(json);
 
 			$('#addCandidate-message').html("新增成功：<br/>"
+				 + "txhash:" + object.txhash + "<br/>"
 				 + "candAddr:" + object.candAddr + "<br/>"
-				 + "timestamp:" + object.timestamp + "<br/>"
-				 + "txhash:" + object.txhash + "<br/>");
+				 + "timestamp:" + object.timestamp + "<br/>");
 
-			$('#candidateNumber').append('<option value="' + object.candAddr + '">'
+			$('#candidateNumber').append('<option value="' + $('select#candidateNumber option').length + '">'
 				 + $('#description').val() + '. ' + object.candAddr
 				 + '</option>');
+			$('#memAddr').append('<option value="' + $('select#memAddr option').length + '">'
+				 + $('#description').val() + '. ' + object.candAddr
+				 + '</option>');
+
 			$("#candAddr option[value='" + $('#candAddr').val() + "']:selected").remove();
 			$('#description').val('');
-			
 
 		}, function (res) {
 
@@ -185,34 +188,40 @@ $(function () {
 			 + '&targetMember=' + $('#targetMember').val()
 			 + '&memberName=' + $('#memberName').val()
 			 + '&canVote=' + $('#canVote').val(), {}, function (res) {
-			log(res);
-			log('候選人新增成功');
 
-			// 觸發更新帳戶資料
-			//whoamiButton.trigger('click')
+			var josn;
+			var object;
+			if (typeof res === 'object') {
+				json = JSON.stringify(res, null, 2);
+			}
 
+			object = jQuery.parseJSON(json);
+
+			$('#changeMembership-message').html("新增成功：<br/>"
+				 + "txhash:" + object.txhash + "<br/>"
+				 + "memAddr:" + object.memAddr + "<br/>"
+				 + "flag:" + object.flag + "<br/>");
+
+			$('#Member').append('<option value="' + object.memAddr + '">'
+				 + $('#memberName').val() + '. ' + object.memAddr
+				 + '</option>');
+
+			$("#targetMember option[value='" + $('#targetMember').val() + "']:selected").remove();
+			$('#memberName').val('');
 
 		}, function (res) {
 
-			/*
-			log(res.responseText
-			.replace(/\<br\>/g, '\n')
-			.replace(/\&nbsp;/g, ' '));
-			 */
 			//var jsonResponse = JSON.parse(req.responseText);
 			//log(jsonResponse);
 			log('請檢查帳戶及銀行合約餘額');
-		})
-	})
-
-	//vote
-
+		});
+	});
 
 	$('#vote').on('click', function () {
 
 		POST('./vote?'
-			 + 'f=' + whoami.val()
-			 + '&candidateNumber=' + $('#candidateNumber').val()
+			 + 'f=' + $('#Member').val()
+			 + '&candidateNumber=' + $('#memAddr').val()
 			 + '&comment=' + $('#comment').val(), {}, function (res) {
 			log(res);
 			log('投票成功');
@@ -223,11 +232,6 @@ $(function () {
 
 		}, function (res) {
 
-			/*
-			log(res.responseText
-			.replace(/\<br\>/g, '\n')
-			.replace(/\&nbsp;/g, ' '));
-			 */
 			//var jsonResponse = JSON.parse(req.responseText);
 			//log(jsonResponse);
 			log('請檢查帳戶及銀行合約餘額');

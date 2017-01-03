@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>Bank</title>
+<title>Election</title>
 </head>
 
 <body>
@@ -15,40 +15,45 @@
 -->
 
 <h5>投票狀態</h5>
-<input type="radio" name="flag" value="true" checked>開放<br>
-<input type="radio" name="flag" value="false">關閉<br>
+<input type="radio" name="flag" value="true" checked>開放
+<input type="radio" name="flag" value="false">關閉<br/>
 <button id="changeVotingState" >確定</button>
 <div id="changeVotingState-message"></div>
 <hr>
 
-<h5>選擇帳戶</h5>
+<h5>合約帳戶</h5>
 <select id="whoami">
 </select>
-<hr>
+
 
 <h5>增加候選人</h5>
 <select id="candAddr"></select>
 <input id="description" type="text" placeholder="候選人代號">
 <button id="addCandidate">確定</button>
 <div id="addCandidate-message"></div>
-<hr>
+
 
 <h5>增加投票人</h5>
 <select id="targetMember"></select>
-<input id="memberName" type="text" placeholder="投票人">
-<input id="canVote" type="text" placeholder="能否投票">
+<input id="memberName" type="text" placeholder="投票人"><br/>
+<input type="radio" name="canVote" value="true" checked>可投票
+<input type="radio" name="canVote" value="false">不可投票<br/>
 <button id="changeMembership">確定</button>
-<hr>
-
-<h5>投票</h5>
-<input id="memAddr" type="text" placeholder="候選人">
-<input id="timestamp" type="text" placeholder="時間戳記">
-<button id="vote">確定</button>
-<hr>
+<div id="changeMembership-message"></div>
 
 <h5>候選人檢查</h5>
 <select id="candidateNumber"></select>
 <button id="checkCandidate">確定</button>
+
+<hr>
+
+<h5>投票</h5>
+<select id="Member" title="投票人"></select>
+<select id="memAddr" title="候選人"></select>
+<input id="comment" type="text" placeholder="備註">
+<button id="vote">確定</button>
+<div id="vote-message"></div>
+
 <hr>
 
 <h5>活動紀錄</h5>
